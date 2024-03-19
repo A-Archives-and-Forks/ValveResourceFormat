@@ -278,11 +278,9 @@ namespace ValveResourceFormat
                         EditInfo = (ResourceEditInfo)block;
 
                         // Try to determine resource type by looking at the compiler indentifiers
-                        if (ResourceType == ResourceType.Unknown && EditInfo.Structs.TryGetValue(ResourceEditInfo.REDIStruct.SpecialDependencies, out var specialBlock))
+                        if (ResourceType == ResourceType.Unknown)
                         {
-                            var specialDeps = (SpecialDependencies)specialBlock;
-
-                            foreach (var specialDep in specialDeps.List)
+                            foreach (var specialDep in EditInfo.SpecialDependencies)
                             {
                                 ResourceType = DetermineResourceTypeByCompilerIdentifier(specialDep);
 
@@ -294,14 +292,9 @@ namespace ValveResourceFormat
                         }
 
                         // Try to determine resource type by looking at the input dependency if there is only one
-                        if (ResourceType == ResourceType.Unknown && EditInfo.Structs.TryGetValue(ResourceEditInfo.REDIStruct.InputDependencies, out var inputBlock))
+                        if (ResourceType == ResourceType.Unknown && EditInfo.InputDependencies.Count == 1)
                         {
-                            var inputDeps = (InputDependencies)inputBlock;
-
-                            if (inputDeps.List.Count == 1)
-                            {
-                                ResourceType = ResourceTypeExtensions.DetermineByFileExtension(Path.GetExtension(inputDeps.List[0].ContentRelativeFilename));
-                            }
+                            ResourceType = ResourceTypeExtensions.DetermineByFileExtension(Path.GetExtension(EditInfo.InputDependencies[0].ContentRelativeFilename));
                         }
 
                         break;
@@ -515,7 +508,7 @@ namespace ValveResourceFormat
                    || type == ResourceType.PostProcessing;
         }
 
-        private static ResourceType DetermineResourceTypeByCompilerIdentifier(SpecialDependencies.SpecialDependency input)
+        private static ResourceType DetermineResourceTypeByCompilerIdentifier(SpecialDependency input)
         {
             var identifier = input.CompilerIdentifier.AsSpan();
 
