@@ -27,7 +27,7 @@ namespace ValveResourceFormat.Compression
             return (byte)(-(v & 1) ^ (v >> 1));
         }
 
-        private static Span<byte> DecodeBytesGroup(Span<byte> data, Span<byte> destination, int bitslog2)
+        private static ReadOnlySpan<byte> DecodeBytesGroup(ReadOnlySpan<byte> data, Span<byte> destination, int bitslog2)
         {
             int dataVar;
             byte b;
@@ -130,7 +130,7 @@ namespace ValveResourceFormat.Compression
             }
         }
 
-        private static Span<byte> DecodeBytes(Span<byte> data, Span<byte> destination)
+        private static ReadOnlySpan<byte> DecodeBytes(ReadOnlySpan<byte> data, Span<byte> destination)
         {
             if (destination.Length % ByteGroupSize != 0)
             {
@@ -159,7 +159,7 @@ namespace ValveResourceFormat.Compression
             return data;
         }
 
-        private static Span<byte> DecodeVertexBlock(Span<byte> data, Span<byte> vertexData, int vertexCount, int vertexSize, Span<byte> lastVertex)
+        private static ReadOnlySpan<byte> DecodeVertexBlock(ReadOnlySpan<byte> data, Span<byte> vertexData, int vertexCount, int vertexSize, Span<byte> lastVertex)
         {
             if (vertexCount <= 0 || vertexCount > VertexBlockMaxSize)
             {
@@ -207,7 +207,14 @@ namespace ValveResourceFormat.Compression
             return data;
         }
 
-        public static byte[] DecodeVertexBuffer(int vertexCount, int vertexSize, Span<byte> buffer)
+        public static byte[] DecodeVertexBuffer(int vertexCount, int vertexSize, ReadOnlySpan<byte> buffer)
+        {
+            var resultArray = new byte[vertexCount * vertexSize];
+            DecodeVertexBuffer(vertexCount, vertexSize, buffer, resultArray);
+            return resultArray;
+        }
+
+        public static Span<byte> DecodeVertexBuffer(int vertexCount, int vertexSize, ReadOnlySpan<byte> buffer, Span<byte> result)
         {
             if (vertexSize <= 0 || vertexSize > 256)
             {
@@ -222,6 +229,11 @@ namespace ValveResourceFormat.Compression
             if (buffer.Length < 1 + vertexSize)
             {
                 throw new ArgumentException("Vertex buffer is too short.");
+            }
+
+            if (result.Length < vertexCount * vertexSize)
+            {
+                throw new ArgumentException("Result buffer is too short.");
             }
 
             if ((buffer[0] & 0xF0) != VertexHeader)
@@ -245,9 +257,6 @@ namespace ValveResourceFormat.Compression
 
             var vertexOffset = 0;
 
-            var resultArray = new byte[vertexCount * vertexSize];
-            var result = resultArray.AsSpan();
-
             while (vertexOffset < vertexCount)
             {
                 var blockSize = vertexOffset + vertexBlockSize < vertexCount
@@ -259,7 +268,7 @@ namespace ValveResourceFormat.Compression
                 vertexOffset += blockSize;
             }
 
-            return resultArray;
+            return result;
         }
     }
 }
