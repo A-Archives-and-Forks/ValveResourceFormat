@@ -214,7 +214,7 @@ namespace ValveResourceFormat.Compression
             return resultArray;
         }
 
-        public static Span<byte> DecodeVertexBuffer(int vertexCount, int vertexSize, ReadOnlySpan<byte> buffer, Span<byte> result)
+        public static int DecodeVertexBuffer(int vertexCount, int vertexSize, ReadOnlySpan<byte> buffer, Span<byte> result)
         {
             if (vertexSize <= 0 || vertexSize > 256)
             {
@@ -268,7 +268,7 @@ namespace ValveResourceFormat.Compression
                 vertexOffset += blockSize;
             }
 
-            return result;
+            return vertexOffset * vertexSize;
         }
     }
 }
