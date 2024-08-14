@@ -239,7 +239,7 @@ namespace ValveResourceFormat.Compression
             buffer = buffer[1..];
 
             var lastVertex = new byte[vertexSize];
-            buffer.Slice(buffer.Length - vertexSize, vertexSize).CopyTo(lastVertex);
+            buffer[^vertexSize..].CopyTo(lastVertex);
 
             var vertexBlockSize = GetVertexBlockSize(vertexSize);
 
