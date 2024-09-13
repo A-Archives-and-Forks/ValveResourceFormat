@@ -64,6 +64,8 @@ namespace GUI
             mainTabs.ImageList = ImageList;
             mainTabs.SelectedIndexChanged += OnMainSelectedTabChanged;
 
+            _ = NativeMethods.SetWindowTheme(mainTabs.Handle, null, "DarkMode::FileExplorerBannerContainer");
+
             var consoleTab = new ConsoleTab();
             Log.SetConsoleTab(consoleTab);
             var consoleTabPage = consoleTab.CreateTab();

@@ -26,6 +26,9 @@ namespace GUI
             Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
             Application.SetHighDpiMode(HighDpiMode.PerMonitorV2);
 
+#pragma warning disable WFO5001
+            Application.SetColorMode(SystemColorMode.System);
+
             MainForm = new MainForm(args);
             Application.Run(MainForm);
         }

@@ -22,6 +22,7 @@ namespace GUI.Utils
                 return;
             }
 
+            // DarkMode_Explorer
             _ = NativeMethods.SetWindowTheme(Handle, "explorer", null);
         }
     }
