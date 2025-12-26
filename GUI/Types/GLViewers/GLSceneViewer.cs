@@ -129,7 +129,6 @@ namespace GUI.Types.GLViewers
         public virtual void PreSceneLoad()
         {
             const string vtexFileName = "ggx_integrate_brdf_lut_schlick.vtex_c";
-            var assembly = Assembly.GetExecutingAssembly();
 
             // Load brdf lut, preferably from game.
             var brdfLutResource = GuiContext.LoadFile("textures/dev/" + vtexFileName);
@@ -140,14 +139,15 @@ namespace GUI.Types.GLViewers
 
                 if (brdfLutResource == null)
                 {
-                    brdfStream = assembly.GetManifestResourceStream("GUI.Utils." + vtexFileName);
+                    brdfStream = Program.Assembly.GetManifestResourceStream("GUI.Utils." + vtexFileName);
 
                     brdfLutResource = new Resource() { FileName = vtexFileName };
                     brdfLutResource.Read(brdfStream);
                 }
 
-                // TODO: add annoying force clamp for lut
-                Textures.Add(new(ReservedTextureSlots.BRDFLookup, "g_tBRDFLookup", GuiContext.MaterialLoader.LoadTexture(brdfLutResource)));
+                var brdfLutTexture = GuiContext.MaterialLoader.LoadTexture(brdfLutResource);
+                brdfLutTexture.SetWrapMode(TextureWrapMode.ClampToEdge);
+                Textures.Add(new(ReservedTextureSlots.BRDFLookup, "g_tBRDFLookup", brdfLutTexture));
             }
             finally
             {
@@ -155,7 +155,7 @@ namespace GUI.Types.GLViewers
             }
 
             // Load default cube fog texture.
-            using var cubeFogStream = assembly.GetManifestResourceStream("GUI.Utils.sky_furnace.vtex_c");
+            using var cubeFogStream = Program.Assembly.GetManifestResourceStream("GUI.Utils.sky_furnace.vtex_c");
             using var cubeFogResource = new Resource() { FileName = "default_cube.vtex_c" };
             cubeFogResource.Read(cubeFogStream);
 
@@ -172,7 +172,7 @@ namespace GUI.Types.GLViewers
 
                 if (blueNoiseResource == null)
                 {
-                    blueNoiseStream = assembly.GetManifestResourceStream("GUI.Utils." + blueNoiseName);
+                    blueNoiseStream = Program.Assembly.GetManifestResourceStream("GUI.Utils." + blueNoiseName);
 
                     blueNoiseResource = new Resource() { FileName = blueNoiseName };
                     blueNoiseResource.Read(blueNoiseStream);
